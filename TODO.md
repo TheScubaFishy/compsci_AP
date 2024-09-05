@@ -13,3 +13,5 @@ GAME DESIGN ELEMENTS:
 - User Interface, Game Controls
   - UI by Tkinter
   - Controls by text box deciding which action to take
+
+TODO:
