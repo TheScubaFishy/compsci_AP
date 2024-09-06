@@ -2,6 +2,8 @@
 from tkinter import *
 from tkinter import ttk
 from datetime import date
+import turtle
+from turtle import *
 
 # Root Window
 root = Tk()
@@ -47,12 +49,10 @@ radar_tab = MinigameTab(tab_control)
 tab_control.add(terminal_tab, text="Terminal")
 tab_control.add(radar_tab, text="Radar")
 tab_control.pack(expand=1, fill="both")
-Grid.rowconfigure(root, 0, weight=1)
-Grid.columnconfigure(root, 0, weight=1)
-tab_control.grid(column=0, row=0, sticky=E+W+N+S)
 
 # Customization
 terminal_tab.config(bg="#000000")
+radar_tab.config(bg="#000000")
 
 # Greeting Setup
 weekday_greet = ""
@@ -140,14 +140,89 @@ def route():
 
 
 # Radar Screen
-radar_screen = Canvas(radar_tab, bg="#000000", bd=0, height=575)
+radar_screen = Canvas(radar_tab, width=282, height=282)
 
+screen = TurtleScreen(radar_screen)
+screen.bgcolor("#000000")
+
+# Ship
+ship = RawTurtle(screen)
+ship.shape("triangle")
+ship.setheading(90)
+
+# Draws Radar Graphics
+graphics = RawTurtle(screen)
+graphics.hideturtle()
+graphics.speed(0)
+
+# Draws Radar Animation
+STEP = -3
+GAP = 337.5
+PEN_SIZE = 141
+RADIUS = 141
+
+animation = RawTurtle(screen)
+animation.speed(0)
+animation.backward(RADIUS)
+animation.right(90)
+
+# Radar Graphics
+def draw_radar():
+    spacer = 141
+    graphics.pencolor("#2F522A")
+    graphics.goto(0, -141)
+    graphics.pendown()
+    graphics.fillcolor("#2F522A")
+    graphics.begin_fill()
+    graphics.circle(141)
+    graphics.end_fill()
+    graphics.pencolor("#56BD3E")
+    graphics.goto(0, 141)
+    graphics.penup()
+    graphics.goto(-141, 0)
+    graphics.pendown()
+    graphics.goto(141, 0)
+    for i in range(1, 5):
+        spacer -= 28.2
+        graphics.penup()
+        graphics.goto(0, -(spacer))
+        graphics.pendown()
+        graphics.circle(spacer)
+    graphics.pencolor("#FFFFFF")
+
+# Radar Animation
+def radar_animation():
+    def await_loading(degrees=[0], color=["#54AF3C"]):
+        animation.color(color)
+        animation.tilt(STEP)
+        degrees[0] = (degrees[0] + STEP) % 360
+        screen.ontimer(await_loading, 10)
+
+    animation.begin_poly()
+    animation.circle(RADIUS, 360 - GAP, 60)
+    animation.left(90)
+    animation.forward(PEN_SIZE)
+    # animation.right(90)
+    # animation.circle(RADIUS - PEN_SIZE, GAP - 360, 60)
+    animation.end_poly()
+
+    screen.addshape('loading', animation.get_poly())
+
+    animation.reset()
+    animation.shape('loading')
+
+    await_loading()
+
+draw_radar()
 
 # Grid Packing
 def pack():
     command_screen.pack(fill="both")
     entry.pack(fill="both", side=BOTTOM)
-    radar_screen.pack(fill="both")
+    radar_screen.pack(anchor=CENTER)
+
+# Animation Logic
+radar_screen.bind("<FocusOut>", radar_animation())
 
 # Bind Keys
 entry.bind("<Return>", (lambda event: run()))
