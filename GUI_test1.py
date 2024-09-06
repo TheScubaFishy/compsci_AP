@@ -74,7 +74,8 @@ else:
     weekday_greet = "Sunday"
 
 # Screen Text
-screentext = ["There was no action supplied with that command."
+screentext = ["There was no action supplied with that command.\n"
+              'Type "Help" for a list of commands.\n'
             ,
             "Welcome to the PERDITUS-26 OS\n"
             "Onboard systems courtesy of Sensus Corporation\n"
@@ -138,15 +139,15 @@ def route():
     command_screen.config(text=screentext[3])
 
 
-# Warning Screen
-warning_screen = Canvas(radar_tab, bg="#000000", bd=0, height=575)
+# Radar Screen
+radar_screen = Canvas(radar_tab, bg="#000000", bd=0, height=575)
 
 
 # Grid Packing
 def pack():
     command_screen.pack(fill="both")
     entry.pack(fill="both", side=BOTTOM)
-    warning_screen.pack(fill="both")
+    radar_screen.pack(fill="both")
 
 # Bind Keys
 entry.bind("<Return>", (lambda event: run()))
