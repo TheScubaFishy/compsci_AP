@@ -101,7 +101,7 @@ entry = Entry(terminal_tab, textvariable=command_var, font=('Courier', 12), fg="
 # Commands
 def run():
     command = command_var.get()
-    if command == "help":
+    if command == "Help":
         help()
     else:
         command_screen.config(text=screentext[2])
