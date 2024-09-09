@@ -138,6 +138,10 @@ def help():
 def route():
     command_screen.config(text=screentext[3])
 
+# TODO make more commands
+
+
+# TODO make radar screen terminal
 
 # Radar Screen
 radar_screen = Canvas(radar_tab, width=282, height=282)
