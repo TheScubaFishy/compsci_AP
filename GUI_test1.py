@@ -2,7 +2,6 @@
 from tkinter import *
 from tkinter import ttk
 from datetime import date
-import turtle
 from turtle import *
 
 # Root Window
@@ -141,18 +140,12 @@ def route():
 # TODO make more commands
 
 
-# TODO make radar screen terminal
 
 # Radar Screen
 radar_screen = Canvas(radar_tab, width=282, height=282)
 
 screen = TurtleScreen(radar_screen)
 screen.bgcolor("#000000")
-
-# Ship
-ship = RawTurtle(screen)
-ship.shape("triangle")
-ship.setheading(90)
 
 # Draws Radar Graphics
 graphics = RawTurtle(screen)
