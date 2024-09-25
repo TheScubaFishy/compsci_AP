@@ -57,28 +57,28 @@ class RadarTab(Frame):
 
         # Radar Animation
         def radar_animation():
-            def await_loading(degrees=[0], color=["#54AF3C"]):
+            def sweep_animation(degrees=[0], color=["#54AF3C"]):
                 animation.color(color)
                 animation.tilt(STEP)
                 degrees[0] = (degrees[0] + STEP) % 360
-                screen.ontimer(await_loading, 10)
+                screen.ontimer(sweep_animation, 10)
 
+            # Draws Radar
             animation.begin_poly()
             animation.circle(RADIUS, 360 - GAP, 60)
             animation.left(90)
             animation.forward(PEN_SIZE)
-            # animation.right(90)
-            # animation.circle(RADIUS - PEN_SIZE, GAP - 360, 60)
             animation.end_poly()
 
-            screen.addshape('loading', animation.get_poly())
+            screen.addshape('radar_sweep', animation.get_poly())
 
             animation.reset()
-            animation.shape('loading')
+            animation.shape('radar_sweep')
 
-            await_loading()
+            sweep_animation()
 
         draw_radar()
+        radar_animation()
 
         # Animation Logic
-        self.radar_screen.bind("<FocusOut>", radar_animation())
+        # self.radar_screen.bind("<Return>", (lambda event: radar_animation()))
