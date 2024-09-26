@@ -48,10 +48,10 @@ class TerminalTab(Frame):
         modules = int(nodes.data + radar.data + shields.data)
 
         # Resources
-        credits = Resource(name="Credits: ", value=60)
-        fuel = Resource(name="Fuel: ", value=100.0)
-        power = Resource(name="Power Cells: ", value=100.0)
-        food = Resource(name="Food: ", value=5)
+        credits = Resource(name="Credits: ", value=60, value2=None)
+        fuel = Resource(name="Fuel: ", value=100.0, value2=0.25)
+        power = Resource(name="Power Cells: ", value=100.0, value2=None)
+        food = Resource(name="Food: ", value=5, value2=None)
 
         # Greeting Setup
         def greeting():
@@ -105,7 +105,11 @@ class TerminalTab(Frame):
             for planet in planet_list:
                 if planetcode == planet.code:
                     current_planet = planet
-                    self.command_screen.config(text="Planet Name: " + current_planet.name + "\n"
+                    self.command_screen.config(text="Autopilot routed to " + current_planet.code + " - " + current_planet.name + "\n"
+                                            "Fuel Required: " + str((current_planet.distance * 100.0) * fuel.value2) + "% of fuel tank.\n"
+                                            "WARNING: IF FUEL LEVELS ARE LOW, DO NOT ROUTE AUTOPILOT!!\n"
+                                            "---------------------------------------------------------\n"
+                                            "Planet Name: " + current_planet.name + "\n"
                                             "Planet Distance: " + str(current_planet.distance) + " Light Years\n"
                                             "Local Resources: " + current_planet.resources + "\n\n"
                                             + current_planet.lore + "\n"
@@ -122,6 +126,7 @@ class TerminalTab(Frame):
 
         # Screen Text
         screentext = ["There was no action supplied with that command.\n"
+                    "In case of error, planetary codes are CASE SENSITIVE.\n"
                     'Type "Help" for a list of commands.\n'
                     ,
                     "Welcome to the PERDITUS-26 OS\n"
@@ -143,6 +148,7 @@ class TerminalTab(Frame):
                     ,
                     "Welcome to the Planetary Positioning System.\n"
                     "To route the ship to a planet, input its planetary code.\n"
+                    "Planetary code is CASE SENSITIVE. Type a correct command.\n"
                     "---------------------------------------------------------\n"
                     "\n"
                     "* " + dock.code + " - " + dock.name + "\n"
