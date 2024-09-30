@@ -1,6 +1,7 @@
 # terminal_tab.py
 from tkinter import *
 from datetime import date
+import random
 from planets import planet_list, space, dock, ilvadus, teliv, utreon, vizuno, orion
 from modules import shipinteg, maininteg, winginteg, hullinteg, modules, nodes, radar, shields
 from resources import credits, fuel, power, food
@@ -86,7 +87,7 @@ class TerminalTab(Frame):
             "\n"
             "SURVIVAL RESOURCES:\n" 
             "* " + food.name + str(food.value) + " Day(s) of Rations\n"
-            
+
         # Escape Command
         def esc():
             if ship.course_set == None or ship.course_set == space:
@@ -107,6 +108,8 @@ class TerminalTab(Frame):
                     status()
                 elif command == "storage" or command == "Storage" or command == "STORAGE":
                     storage()
+                elif command == "eject" or command == "Eject" or command == "EJECT":
+                    eject()
                 else:
                     self.command_screen.config(text=screentext[0]) # Catch errors and put out error message
                     code(command) # If it's planet code, run planet info
@@ -127,28 +130,48 @@ class TerminalTab(Frame):
 
         # ROUTE Commands
         def route():
-            self.command_screen.config(text=screentext[3])
+            if ship.course_set == None or ship.course_set == space:
+                self.command_screen.config(text=screentext[3])
+            else:
+                self.command_screen.config(text="Second thoughts? No worries! Now you know what not to do!\n"
+                                            "The autopilot routing system is DISABLED while underway.\n"
+                                            "Sensus Corporation does not tolerate cowardly behavior.\n"
+                                            "If you do insist on returning, use the following command.\n"
+                                            "---------------------------------------------------------\n"
+                                            "\n"
+                                            ">EJECT\n"
+                                            "To sterilize the ship of its crew and cargo.\n")
 
         # Select Planet
         def code(planetcode):
-            for planet in planet_list:
-                if planetcode == planet.code:
-                    current_planet = planet
-                    self.command_screen.config(text="Autopilot routed to " + current_planet.code + " - " + current_planet.name + "\n"
-                                            "Fuel required: " + str((current_planet.distance * 100.0) * fuel.value2) + "% of fuel tank.\n"
-                                            "Current fuel levels: " + str(fuel.value) + "% of fuel tank.\n"
-                                            "WARNING: IF FUEL LEVELS ARE LOW, DO NOT ROUTE AUTOPILOT!!\n"
-                                            "---------------------------------------------------------\n"
-                                            "\n"
-                                            "* Planet Name: " + current_planet.name + "\n"
-                                            "* Planet Distance: " + str(current_planet.distance) + " Light Years\n"
-                                            "* Local Resources: " + current_planet.resources + "\n"
-                                            "\n"
-                                            + current_planet.lore + "\n"
-                                            "\n"
-                                            "\n"
-                                            "Route Autopilot to " + current_planet.name + "?\n")
-                    ship.course_try = current_planet
+            if ship.course_set == None or ship.course_set == space:
+                for planet in planet_list:
+                    if planetcode == planet.code:
+                        current_planet = planet
+                        self.command_screen.config(text="Autopilot routed to " + current_planet.code + " - " + current_planet.name + "\n"
+                                                "Fuel required: " + str((current_planet.distance * 100.0) * fuel.value2) + "% of fuel tank.\n"
+                                                "Current fuel levels: " + str(fuel.value) + "% of fuel tank.\n"
+                                                "WARNING: IF FUEL LEVELS ARE LOW, DO NOT ROUTE AUTOPILOT!!\n"
+                                                "---------------------------------------------------------\n"
+                                                "\n"
+                                                "* Planet Name: " + current_planet.name + "\n"
+                                                "* Planet Distance: " + str(current_planet.distance) + " Light Years\n"
+                                                "* Local Resources: " + current_planet.resources + "\n"
+                                                "\n"
+                                                + current_planet.lore + "\n"
+                                                "\n"
+                                                "\n"
+                                                "Route Autopilot to " + current_planet.name + "?\n")
+                        ship.course_try = current_planet
+            else:
+                self.command_screen.config(text="Second thoughts? No worries! Now you know what not to do!\n"
+                            "The autopilot routing system is DISABLED while underway.\n"
+                            "Sensus Corporation does not tolerate cowardly behavior.\n"
+                            "If you do insist on returning, use the following command.\n"
+                            "---------------------------------------------------------\n"
+                            "\n"
+                            ">EJECT\n"
+                            "To sterilize the ship of its crew and cargo.\n")
 
         # STATUS Command
         def status():
@@ -157,6 +180,19 @@ class TerminalTab(Frame):
         # STORAGE Command
         def storage():
             self.command_screen.config(text=screentext[5])
+
+        # EJECT Command
+        def eject():
+            self.command_screen.config(text="Thank you for your time with Sensus Corporation.\n"
+                    "It appears that your employment with us has ended.\n"
+                    "Rest assured, you and your crew will be swiftly replaced.\n"
+                    "\n"
+                    "Happy " + greeting() + ". Enjoy it, as it is your last.\n"
+                    "You have 20 seconds before the termination of your contract.\n"
+                    "\n"
+                    "It has been a pleasure. Goodbye!\n")
+            self.entry.config(state=DISABLED)
+            master.after(20000, master.destroy)
 
         # Screen Text
         screentext = ["There was no action supplied with that command.\n"
