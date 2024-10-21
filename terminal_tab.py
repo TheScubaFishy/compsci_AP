@@ -13,6 +13,7 @@ class TerminalTab(Frame):
         super().__init__(master)
         # Customization
         self.config(bg="#000000")
+        self.textcolor = "#00FF00"
 
         # Variables
         command_var = StringVar()
@@ -51,10 +52,16 @@ class TerminalTab(Frame):
             "\n"
             "Remarks: " + ship.event + "\n"
             "\n"
+            "Cryosleep recommended. Use the following command:\n"
+            "\n"
+            ">CRYOSLEEP\n"
+            "To skip 1 light year of ship travel.\n"
+            "\n"
+            "\n"
             'Type "Help" for a list of commands.\n')
         
         def refresh_status():
-            screentext[4] = "PERDITUS-26 sent scan request to 08 STATUS NODES.\n"
+            screentext[4] = ("PERDITUS-26 sent scan request to 08 STATUS NODES.\n"
             "08 STATUS NODES require passphrase for access: ********\n"
             "Admin identity confirmed. Scan yielded following results:\n"
             "---------------------------------------------------------\n"
@@ -72,10 +79,10 @@ class TerminalTab(Frame):
             "EXTERIOR DATA MODULES: " + str(modules) + " OF 3 ONLINE\n"  
             "* " + nodes.name + nodes.online + "\n"
             "* " + radar.name + radar.online + "\n"
-            "* " + shields.name + shields.online + "\n"
+            "* " + shields.name + shields.online + "\n")
 
         def refresh_resources():
-            screentext[5] = "PERDITUS-26 sent inventory request to STORAGE BAY.\n"
+            screentext[5] = ("PERDITUS-26 sent inventory request to STORAGE BAY.\n"
             "STORAGE BAY requires passphrase for access: ********\n"
             "Captain confirmed. STORAGE BAY yielded following results:\n"
             "---------------------------------------------------------\n"
@@ -86,7 +93,13 @@ class TerminalTab(Frame):
             "* " + power.name + str(power.value) + "%\n"
             "\n"
             "SURVIVAL RESOURCES:\n" 
-            "* " + food.name + str(food.value) + " Day(s) of Rations\n"
+            "* " + food.name + str(food.value) + " Day(s) of Rations\n")
+
+        def refresh_arrival():
+            runtext[2] = ("PERDITUS-26 has reached destination of " + ship.course_set.name.upper() + "\n"
+            "Fuel Remaining: " + str(fuel.value) +"%\n"
+            "ANY DAMAGE ENCOUNTERED WILL BE TAKEN OUT OF YOUR PAYCHECK\n"
+            + ship.course_set.lore[1])
 
         # Escape Command
         def esc():
@@ -106,10 +119,14 @@ class TerminalTab(Frame):
                     route()
                 elif command == "status" or command == "Status" or command == "STATUS":
                     status()
+                elif command == "radar" or command == "Radar" or command == "RADAR":
+                    radar_fix()
                 elif command == "storage" or command == "Storage" or command == "STORAGE":
                     storage()
                 elif command == "eject" or command == "Eject" or command == "EJECT":
                     eject()
+                elif command == "test" or command == "debug":
+                    debug()
                 else:
                     self.command_screen.config(text=screentext[0]) # Catch errors and put out error message
                     code(command) # If it's planet code, run planet info
@@ -133,14 +150,7 @@ class TerminalTab(Frame):
             if ship.course_set == None or ship.course_set == space:
                 self.command_screen.config(text=screentext[3])
             else:
-                self.command_screen.config(text="Second thoughts? No worries! Now you know what not to do!\n"
-                                            "The autopilot routing system is DISABLED while underway.\n"
-                                            "Sensus Corporation does not tolerate cowardly behavior.\n"
-                                            "If you do insist on returning, use the following command.\n"
-                                            "---------------------------------------------------------\n"
-                                            "\n"
-                                            ">EJECT\n"
-                                            "To sterilize the ship of its crew and cargo.\n")
+                self.command_screen.config(text=screentext[6])
 
         # Select Planet
         def code(planetcode):
@@ -158,24 +168,20 @@ class TerminalTab(Frame):
                                                 "* Planet Distance: " + str(current_planet.distance) + " Light Years\n"
                                                 "* Local Resources: " + current_planet.resources + "\n"
                                                 "\n"
-                                                + current_planet.lore + "\n"
+                                                + current_planet.lore[0] + "\n"
                                                 "\n"
                                                 "\n"
-                                                "Route Autopilot to " + current_planet.name + "?\n")
+                                                "Route Autopilot to " + current_planet.name + "? (Y/N)\n")
                         ship.course_try = current_planet
             else:
-                self.command_screen.config(text="Second thoughts? No worries! Now you know what not to do!\n"
-                            "The autopilot routing system is DISABLED while underway.\n"
-                            "Sensus Corporation does not tolerate cowardly behavior.\n"
-                            "If you do insist on returning, use the following command.\n"
-                            "---------------------------------------------------------\n"
-                            "\n"
-                            ">EJECT\n"
-                            "To sterilize the ship of its crew and cargo.\n")
+                self.command_screen.config(text=screentext[6])
 
         # STATUS Command
         def status():
             self.command_screen.config(text=screentext[4])
+        
+        def radar_fix():
+            master.notebook.add(master.radar)
         
         # STORAGE Command
         def storage():
@@ -188,11 +194,18 @@ class TerminalTab(Frame):
                     "Rest assured, you and your crew will be swiftly replaced.\n"
                     "\n"
                     "Happy " + greeting() + ". Enjoy it, as it is your last.\n"
-                    "You have 20 seconds before the termination of your contract.\n"
+                    "You have 10 seconds before the termination of your contract.\n"
                     "\n"
                     "It has been a pleasure. Goodbye!\n")
             self.entry.config(state=DISABLED)
-            master.after(20000, master.destroy)
+            master.after(10000, master.destroy)
+
+
+        # DEBUG Command  NOTE: Remove once public beta is up
+        def debug():
+            refresh_arrival()
+            self.command_screen.config(text=runtext[2])
+
 
         # Screen Text
         screentext = ["There was no action supplied with that command.\n"
@@ -230,7 +243,7 @@ class TerminalTab(Frame):
                     "* " + vizuno.code + " - " + vizuno.name + "\n"
                     "* " + orion.code + " - " + orion.name + "\n"
                     ,
-                    "PERDITUS-26 sent scan request to 08 STATUS NODES.\n"
+                    "PERDITUS-26 sent scan request to 08 STATUS NODES\n"
                     "08 STATUS NODES require passphrase for access: ********\n"
                     "Admin identity confirmed. Scan yielded following results:\n"
                     "---------------------------------------------------------\n"
@@ -250,7 +263,7 @@ class TerminalTab(Frame):
                     "* " + radar.name + radar.online + "\n"
                     "* " + shields.name + shields.online + "\n"
                     ,
-                    "PERDITUS-26 sent inventory request to STORAGE BAY.\n"
+                    "PERDITUS-26 sent inventory request to STORAGE BAY\n"
                     "STORAGE BAY requires passphrase for access: ********\n"
                     "Captain confirmed. STORAGE BAY yielded following results:\n"
                     "---------------------------------------------------------\n"
@@ -261,9 +274,18 @@ class TerminalTab(Frame):
                     "* " + power.name + str(power.value) + "%\n"
                     "\n"
                     "SURVIVAL RESOURCES:\n" 
-                    "* " + food.name + str(food.value) + " Day(s) of Rations\n"]
+                    "* " + food.name + str(food.value) + " Day(s) of Rations\n"
+                    ,
+                    "Second thoughts? No worries! Now you know what not to do!\n"
+                    "The autopilot routing system is DISABLED while underway.\n"
+                    "Sensus Corporation does not tolerate cowardly behavior.\n"
+                    "If you do insist on returning, use the following command.\n"
+                    "---------------------------------------------------------\n"
+                    "\n"
+                    ">EJECT\n"
+                    "To sterilize the ship of its crew and cargo.\n"]
         
-        # Run Text
+        # Run Text  TODO: Add planet data & weather event correspondence
         runtext = ["There was no action supplied with that command.\n"
                     "In case of error, planetary codes are CASE SENSITIVE.\n"
                     'Type "Help" for a list of commands.\n'
@@ -279,15 +301,25 @@ class TerminalTab(Frame):
                     "\n"
                     "Remarks: " + ship.event + "\n"
                     "\n"
-                    'Type "Help" for a list of commands.\n']
+                    "Cryosleep recommended. Use the following command:\n"
+                    "\n"
+                    ">CRYOSLEEP\n"
+                    "To skip 1 light year of ship travel.\n"
+                    "\n"
+                    "\n"
+                    'Type "Help" for a list of commands.\n'
+                    ,
+                    "PERDITUS-26 has reached destination of " + ship.course_set.name.upper() + "\n"
+                    "Fuel Remaining: " + str(fuel.value) +"%\n"
+                    "ANY DAMAGE ENCOUNTERED WILL BE TAKEN OUT OF YOUR PAYCHECK\n"
+                    + ship.course_set.lore[1]]
 
         # Terminal Tab Screens
-        self.command_screen = Label(self, text=screentext[1], font=("Courier", 12), fg="#00FF00", bg="#000000", anchor=W, justify="left")
+        self.command_screen = Label(self, text=screentext[1], font=("Courier", 12), fg=self.textcolor, bg="#000000", anchor=W, justify="left")
         self.command_screen.pack(fill="both")
-        self.entry = Entry(self, textvariable=command_var, font=('Courier', 12), fg="#00FF00", bg="#000000")
+        self.entry = Entry(self, textvariable=command_var, font=("Courier", 12), fg=self.textcolor, bg="#000000")
         self.entry.pack(fill="both", side=BOTTOM)
 
         # Bind Keys
         self.entry.bind("<Return>", (lambda event: run()))
         self.entry.bind("<Escape>", (lambda event: esc()))
-

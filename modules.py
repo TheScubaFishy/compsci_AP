@@ -13,7 +13,7 @@ class Module():
 maininteg = Module(name="Main Integrity: ", durability=100.0, data=1, online="ONLINE")
 winginteg = Module(name="Wing Integrity: ", durability=100.0, data=1, online="ONLINE")
 hullinteg = Module(name="Hull Integrity: ", durability=100.0, data=1, online="ONLINE")
-shipinteg = int(maininteg.data + winginteg.data + hullinteg.data)
+shipinteg = int((maininteg.durability + winginteg.durability + hullinteg.durability)/3)
 # Data Modules
 nodes = Module(name="08 Status Nodes: ", durability=None, data=1, online="ONLINE")
 radar = Module(name="Radar Reciever: ", durability=None, data=0, online="OFFLINE")
