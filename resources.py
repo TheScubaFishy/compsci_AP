@@ -11,5 +11,5 @@ class Resource():
 # Resources
 credits = Resource(name="Credits: ", value=60, value2=None)
 fuel = Resource(name="Fuel: ", value=100.0, value2=0.25)
-power = Resource(name="Power Cells: ", value=100.0, value2=None)
+power = Resource(name="Power Cells: ", value=100.0, value2=100.0)
 food = Resource(name="Food: ", value=5, value2=None)

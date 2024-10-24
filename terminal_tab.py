@@ -55,12 +55,42 @@ class TerminalTab(Frame):
             "Cryosleep recommended. Use the following command:\n"
             "\n"
             ">CRYOSLEEP\n"
-            "To skip 1 light year of ship travel.\n"
+            "To skip 1/2 light year of ship travel.\n"
             "\n"
             "\n"
             'Type "Help" for a list of commands.\n')
-        
-        def refresh_status():
+
+            runtext[2] = ("CRYO-05 sent cryosleep request to PERDITUS-26\n"
+            "Cryosleep request successfully fullfilled. See you later!\n"
+            "---------------------------------------------------------\n"
+            "\n"
+            "* PLANETARY INFORMATION:\n"
+            "Autopilot routed to: " + str(ship.course_set.name) + "\n"
+            "Distance: " + str(ship.course_set.distance) + " Light Years\n"
+            "Resources: " + str(ship.course_set.resources) + "\n"
+            "" + str(ship.course_set.lore[0]) + "\n"
+            "\n"
+            "* FUEL INFORMATION:\n"
+            "Current Fuel Levels: " + str(fuel.value) + "% of tank remains.\n"
+            "Fuel Use Estimate: " + str(100 * (1 * fuel.value2)) + "% of tank.\n"
+            "\n"
+            "* POWER INFORMATION:\n"
+            "Current Power Levels: " + str(power.value2) + "% of power cell reserves.\n"
+            "Power Use Estimate: 5 TW (5 TW is " + str(100 * (5 / power.value2)) + "% of power cell reserves.)\n")
+
+        def refresh_screens():
+            screentext[5] = ("PERDITUS-26 sent inventory request to STORAGE BAY.\n"
+            "STORAGE BAY requires passphrase for access: ********\n"
+            "Captain confirmed. STORAGE BAY yielded following results:\n"
+            "---------------------------------------------------------\n"
+            "\n"
+            "PRIORITY RESOURCES:\n" 
+            "* " + credits.name + str(credits.value) + "\n"
+            "* " + fuel.name + str(fuel.value) + "%\n"
+            "* " + power.name + str(power.value) + " Tetrawatts\n"
+            "\n"
+            "SURVIVAL RESOURCES:\n" 
+            "* " + food.name + str(food.value) + " Day(s) of Rations\n")
             screentext[4] = ("PERDITUS-26 sent scan request to 08 STATUS NODES.\n"
             "08 STATUS NODES require passphrase for access: ********\n"
             "Admin identity confirmed. Scan yielded following results:\n"
@@ -81,22 +111,8 @@ class TerminalTab(Frame):
             "* " + radar.name + radar.online + "\n"
             "* " + shields.name + shields.online + "\n")
 
-        def refresh_resources():
-            screentext[5] = ("PERDITUS-26 sent inventory request to STORAGE BAY.\n"
-            "STORAGE BAY requires passphrase for access: ********\n"
-            "Captain confirmed. STORAGE BAY yielded following results:\n"
-            "---------------------------------------------------------\n"
-            "\n"
-            "PRIORITY RESOURCES:\n" 
-            "* " + credits.name + str(credits.value) + "\n"
-            "* " + fuel.name + str(fuel.value) + "%\n"
-            "* " + power.name + str(power.value) + "%\n"
-            "\n"
-            "SURVIVAL RESOURCES:\n" 
-            "* " + food.name + str(food.value) + " Day(s) of Rations\n")
-
         def refresh_arrival():
-            runtext[2] = ("PERDITUS-26 has reached destination of " + ship.course_set.name.upper() + "\n"
+            runtext[3] = ("PERDITUS-26 has reached destination of " + ship.course_set.name.upper() + "\n"
             "Fuel Remaining: " + str(fuel.value) +"%\n"
             "ANY DAMAGE ENCOUNTERED WILL BE TAKEN OUT OF YOUR PAYCHECK\n"
             + ship.course_set.lore[1])
@@ -123,9 +139,11 @@ class TerminalTab(Frame):
                     radar_fix()
                 elif command == "storage" or command == "Storage" or command == "STORAGE":
                     storage()
+                elif command == "cryosleep" or command == "Cryosleep" or command == "CRYOSLEEP":
+                    cryosleep()
                 elif command == "eject" or command == "Eject" or command == "EJECT":
                     eject()
-                elif command == "test" or command == "debug":
+                elif command == "q":
                     debug()
                 else:
                     self.command_screen.config(text=screentext[0]) # Catch errors and put out error message
@@ -187,6 +205,36 @@ class TerminalTab(Frame):
         def storage():
             self.command_screen.config(text=screentext[5])
 
+        # CRYOSLEEP Command
+        def cryosleep():
+            if ship.course_set == None or ship.course_set == space:  # Handle issues where one enters cryosleep before voyage
+                self.command_screen.config(text="CRYO-05 sent cryosleep request to PERDITUS-26\n"
+                                                "Cryosleep request was unsuccessful, and returned Error 5.\n"
+                                                "---------------------------------------------------------\n"
+                                                "\n"
+                                                "[CRYO-05]: ERROR 5 - AUTOPILOT MUST BE ROUTED TO A PLANET\n"
+                                                "[CRYO-05]: PLEASE USE SUGGESTED COMMAND TO RESOLVE THIS ACTION\n"
+                                                "\n"
+                                                "To resolve this error, use the suggested command:\n"
+                                                "\n"
+                                                ">ROUTE\n"
+                                                "To change the course of the autopilot.\n"
+                                                "\n"
+                                                "\n"
+                                                "\n"
+                                                "\n"
+                                                "\n"
+                                                "\n"
+                                                "\n"
+                                                "[CRYO-05]: SENSUS PROVIDER CODE: QhoAJ1Z1iddM5CSbAHLaRlJLAfM13umS")
+            else:
+                power.value -= 5.0
+                fuel.value -= (100 * fuel.value2)
+                ship.course_dist -= 0.5
+                refresh_screens()
+                refresh_planet()
+                self.command_screen.config(text=runtext[2])
+        
         # EJECT Command
         def eject():
             self.command_screen.config(text="Thank you for your time with Sensus Corporation.\n"
@@ -204,7 +252,7 @@ class TerminalTab(Frame):
         # DEBUG Command  NOTE: Remove once public beta is up
         def debug():
             refresh_arrival()
-            self.command_screen.config(text=runtext[2])
+            self.command_screen.config(text=runtext[3])
 
 
         # Screen Text
@@ -219,6 +267,7 @@ class TerminalTab(Frame):
                     "Happy " + greeting() + ".\n"
                     "\n"
                     'Type "Help" for a list of commands.\n'
+                    "Click [esc] to go back to the home screen.\n"
                     ,
                     ">ROUTE\n"
                     "To change the course of the autopilot.\n"
@@ -271,7 +320,7 @@ class TerminalTab(Frame):
                     "PRIORITY RESOURCES:\n" 
                     "* " + credits.name + str(credits.value) + "\n"
                     "* " + fuel.name + str(fuel.value) + "%\n"
-                    "* " + power.name + str(power.value) + "%\n"
+                    "* " + power.name + str(power.value) + " Tetrawatts\n"
                     "\n"
                     "SURVIVAL RESOURCES:\n" 
                     "* " + food.name + str(food.value) + " Day(s) of Rations\n"
@@ -304,10 +353,30 @@ class TerminalTab(Frame):
                     "Cryosleep recommended. Use the following command:\n"
                     "\n"
                     ">CRYOSLEEP\n"
-                    "To skip 1 light year of ship travel.\n"
+                    "To skip 1/2 light year of ship travel.\n"
                     "\n"
                     "\n"
                     'Type "Help" for a list of commands.\n'
+                    "Click [esc] to go back to the home screen.\n"
+                    ,
+                    "CRYO-05 sent cryosleep request to PERDITUS-26\n"
+                    "Cryosleep request successfully fullfilled. See you later!\n"
+                    "---------------------------------------------------------\n"
+                    "\n"
+                    "PLANETARY INFORMATION:\n"
+                    "Autopilot routed to: " + str(ship.course_set.name) + "\n"
+                    "Distance: " + str(ship.course_set.distance) + "\n"
+                    "Resources: " + str(ship.course_set.resources) + "\n"
+                    "\n"
+                    "" + str(ship.course_set.lore[0]) + "\n"
+                    "\n"
+                    "FUEL INFORMATION:\n"
+                    "Current Fuel Levels: " + str(fuel.value) + "% of tank remains.\n"
+                    "Fuel Use Estimate: " + str(100 * (1 * fuel.value2)) + "% of tank.\n"
+                    "\n"
+                    "POWER INFORMATION:\n"
+                    "Current Power Levels: " + str(power.value2) + "% of power cell reserves.\n"
+                    "Power Use Estimate: 5 TW (5 TW is " + str(100 * (5 / power.value2)) + "% of power cell reserves.)\n"
                     ,
                     "PERDITUS-26 has reached destination of " + ship.course_set.name.upper() + "\n"
                     "Fuel Remaining: " + str(fuel.value) +"%\n"
